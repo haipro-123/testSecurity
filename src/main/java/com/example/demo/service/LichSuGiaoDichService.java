@@ -1,18 +1,19 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.LichSuGiaoDichDTO;
+import com.example.demo.dto.request.LichSuGiaoDichDTO;
 import com.example.demo.entity.LichSuGiaoDich;
 import com.example.demo.exception.IllegalArgumentMyFunctionException;
 import com.example.demo.repository.LichSuGiaoDichRepository;
 import com.example.demo.util.AesUtil;
+import com.example.demo.util.Constant;
 import com.example.demo.util.RsaUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -21,7 +22,6 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.sql.Date;
@@ -39,38 +39,20 @@ public class LichSuGiaoDichService {
     @Autowired
     private RsaUtil rsaUtil;
     @Value("${security.aes.key}")
-    private static String AES_KEY_TEXT;
-    private static final String RSA_PRIVATE_KEY_TEXT = """
-            -----BEGIN RSA PRIVATE KEY-----
-            MIICXgIBAAKBgQDi1MHuMVZUQTd4Kcly+EppjwcDfz4lzKdwzsI8Ucq243CU3Kze
-            ljeA9A5O2HUIRSw6HN4F9ejfYDx99kqASBDPWmK+MkNFrgfInIgOof7JNAU1Nzqa
-            I8XZ+yfrSjTAoyozZRQZLFzpehx/Okeeh5iMmzQrBs7EzltWY3O6OxE8QwIDAQAB
-            AoGBAN/oDJbHdOQujEa9WPF4Tlvsp4u4Kuy9G/uq3OkWA/iMgjEvtCT0O027m/QQ
-            j1Xekk26+R8BIyJ8qLneSKRgftWTUny0utzKsAZr9+y9Lk/j9E0dS5Lji6GHvgcK
-            saj4PxjsiLHrmE0VBIMc2AjHO66DJQc2YBWpjpf9MQnYMJwBAkEA//3rj/StWrBn
-            As0W2EYhPcm4xh64NOgasE9g69tWBmMHx8dINct9N7fkZBYjjpL1ou9qQubmrkSj
-            Grb+fT13wwJBAOLWmbdwsz6J+1CDO1NHHIxWK1gk43C3U4xAnri6r6Jtu5RNiOCe
-            19O2G2i5bY2CraAipfgo2E9GAbN7ohP9YYECQQCrTPBn6XRjnm2gOztRSESQQz9p
-            HD9p7/OEDeouihybs4MOVbVlgiDtuxmTPBlZG9BR0uIJmNe+v+FhTBkqF4rfAkAg
-            0b/HxKyKXdhYm8QXlnBQ9Z6r0BqAEmYqIqdUPt5ud8Xt/RHSveioHu70Re/Ny5xn
-            UNwGfZJeVdilKTwX/E8BAkEAtaek+VMyuIocYE4AcsF5BIMzqm1hJHIeeKi+n0uG
-            pvNy0sjBewjkcJ37Sh/uh5DJOOTlrVgVQP352+wRSp72dQ==
-            -----END RSA PRIVATE KEY-----
-            """;
+    private String AES_KEY_TEXT;
     private PrivateKey getPrivateKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        String privateKeyString = RSA_PRIVATE_KEY_TEXT
-                .replace("-----BEGIN RSA PRIVATE KEY-----", "")
-                .replace("-----END RSA PRIVATE KEY-----", "")
+        String privateKeyString = Constant.RSA_PRIVATE_KEY_TEXT
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
                 .replaceAll("\\s+", "");
-        byte[] privateKeyBytes = Base64.getDecoder().decode(privateKeyString);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-        RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyString));
+        PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
         return privateKey;
     }
     private SecretKey getAESKey() throws NoSuchAlgorithmException {
-        byte[] keyData = AES_KEY_TEXT.getBytes(StandardCharsets.UTF_8);
-        SecretKey secretKey = new SecretKeySpec(keyData,"AES");
+        byte[] keyData = Base64.getDecoder().decode(AES_KEY_TEXT);
+        SecretKey secretKey = new SecretKeySpec(keyData,0,keyData.length,"AES");
         return secretKey;
     }
 

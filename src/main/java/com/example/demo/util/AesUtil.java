@@ -19,10 +19,10 @@ import java.util.Objects;
 public class AesUtil {
     private final static int AES_KEY_SIZE = 256;
     private final static String AES_ALGORITHM = "AES";
-    public SecretKey generateAESKey() throws NoSuchAlgorithmException {
+    public String generateAESKey() throws NoSuchAlgorithmException {
         KeyGenerator keyGen = KeyGenerator.getInstance(AES_ALGORITHM);
         keyGen.init(AES_KEY_SIZE);
-        return keyGen.generateKey();
+        return Base64.getEncoder().encodeToString(keyGen.generateKey().getEncoded());
     }
     public String encryptData(String data,SecretKey key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         if(Objects.isNull(data)||Objects.isNull(key)){

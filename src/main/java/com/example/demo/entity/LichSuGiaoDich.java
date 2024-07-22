@@ -14,7 +14,7 @@ import java.sql.Date;
 import java.util.UUID;
 
 @Entity
-@Table(name = "lichSUGiaoDich")
+@Table(name = "lich_su_giao_dich")
 @Getter @NoArgsConstructor @AllArgsConstructor
 public class LichSuGiaoDich {
     @Id
@@ -23,7 +23,7 @@ public class LichSuGiaoDich {
     @Column(name = "transactionID")
     private String transactionID;
     private String account;
-    @Column(name = "inDent")
+    @Column(name = "in_dent")
     private Double inDent;
     private Integer have;
     private Date time;
